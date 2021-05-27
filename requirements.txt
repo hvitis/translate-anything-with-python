@@ -1,0 +1,4 @@
+requests
+Image
+python-docx
+pytesseract
