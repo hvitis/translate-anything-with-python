@@ -1,6 +1,13 @@
-# Translate books with Google Translate for free to any language with Python 📚
+# Translate anything from pictures with Google Translate for free to any language using Python 📚
 
 Here you have the bear minimum if you know Python. Tutorial with additional information about the process, copyrights and lawful bindings for translations can be found [on my blog][5].
+## Results
+
+Two docx documents opened next to each other:
+
+![Siddhartha](./translation_result.png 'translation_result')
+
+## Instruction
 
 The following code generates 2 docx files of text scanned from photos.
 Photos have to be located within a folder placed next to this script. The flow of work is:
@@ -58,16 +65,11 @@ You can run the script within a folder with multiple books to translate. For exa
     ├── LICENSE
     └── README.md
 
-## Results
-
-Two docx documents opened next to each other:
-
-![Siddhartha](./translation_result.png 'translation_result')
-
-
 ## Remember
 
 Books are protected with copyrights! Translate only books that are on the public domain. If you want to thank me and/or know more, visit [blog post for this code][5].
+
+## Contact
 
 If you have questions or request feel free to reach me via [contact form][4].
 
