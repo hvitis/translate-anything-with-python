@@ -41,19 +41,21 @@ gcloud auth application-default print-access-token
 
 You should recieve something like:
 ```
-ya29.c.Kp8BAQhYC2hyHsFuRlpjrJnT0XkT[...]axi0Z_3y1-xdUaodmnnjkmlquF3ol8CInVDYPdJO8jMr3h-alcQUayKAJD_e7cuw
+ya29.c.Kp8BAQhYC2hyHsFuRlpjrJnT0XkT[...]axi0Z_3y1-xdUaodmnnjkmlquF3ol8CInVDYPdJO8jMr3h-alcQUayKAJD_e7cuw...........
 ```
 
 Using this token update **GOOGLE_API_TOKEN** variable in **main.py** and run it.
 
+TODO: using .env file to load variables
+
 ```
-python3 main.py
+python3 translate
 ```
 
 You will be prompted for folder name, you can type _herman_hesse_ which is a name of example folder that comes with this repo.
 
 ```
-> python3 main.py
+> python3 translate
 Enter name of the folder with images of scanned book: herman_hesse
 ```
 
@@ -61,7 +63,9 @@ You can run the script within a folder with multiple books to translate. For exa
 
     ├── herman_hesse/             # Folder with pictures of pages from example book
     ├── another_book/            # Folder with pictures of pages from another book
-    ├── main.py                   
+    ├── translate / __init__.py  
+    ├── translate / __main__.py  
+    ├── translate / languages.py                   
     ├── LICENSE
     └── README.md
 

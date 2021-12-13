@@ -9,14 +9,17 @@ import pytesseract
 from docx import Document
 from docx.shared import Pt  # Point font size
 
+from languages import *
+
 try:
     from PIL import Image
 except ImportError:
     import Image
 
 
+
 # example token
-GOOGLE_API_TOKEN = "ya29.c.Kp8BAQg...-e7w1JR786rWdHlSZPzve"
+GOOGLE_API_TOKEN = ""
 
 DIR = input("Enter name of the folder with images of scanned book: ")
 
@@ -25,145 +28,9 @@ chosen_path = os.path.join(DIR)
 if not os.path.isdir(chosen_path):
     sys.exit("No folder named {}, exiting.".format(DIR))
 
-LANGUAGE_CODES = [
-    "af",
-    "ga",
-    "sq",
-    "it",
-    "ar",
-    "ja",
-    "az",
-    "kn",
-    "eu",
-    "ko",
-    "bn",
-    "la",
-    "be",
-    "lv",
-    "bg",
-    "lt",
-    "ca",
-    "mk",
-    "zh-CN",
-    "ms",
-    "zh-TW",
-    "mt",
-    "hr",
-    "no",
-    "cs",
-    "fa",
-    "da",
-    "pl",
-    "nl",
-    "pt",
-    "en",
-    "ro",
-    "eo",
-    "ru",
-    "et",
-    "sr",
-    "tl",
-    "sk",
-    "fi",
-    "sl",
-    "fr",
-    "es",
-    "gl",
-    "sw",
-    "ka",
-    "sv",
-    "de",
-    "ta",
-    "el",
-    "te",
-    "gu",
-    "th",
-    "ht",
-    "tr",
-    "iw",
-    "uk",
-    "hi",
-    "ur",
-    "hu",
-    "vi",
-    "is",
-    "cy",
-    "id",
-    "yi",
-]
 
-print(
-    """
-    Available languages and their Language Codes:
-    Language Name	Language Code
-    Afrikaans	af
-    Irish	ga
-    Albanian	sq
-    Italian	it
-    Arabic	ar
-    Japanese	ja
-    Azerbaijani	az
-    Kannada	kn
-    Basque	eu
-    Korean	ko
-    Bengali	bn
-    Latin	la
-    Belarusian	be
-    Latvian	lv
-    Bulgarian	bg
-    Lithuanian	lt
-    Catalan	ca
-    Macedonian	mk
-    Chinese Simplified	zh-CN
-    Malay	ms
-    Chinese Traditional	zh-TW
-    Maltese	mt
-    Croatian	hr
-    Norwegian	no
-    Czech	cs
-    Persian	fa
-    Danish	da
-    Polish	pl
-    Dutch	nl
-    Portuguese	pt
-    English	en
-    Romanian	ro
-    Esperanto	eo
-    Russian	ru
-    Estonian	et
-    Serbian	sr
-    Filipino	tl
-    Slovak	sk
-    Finnish	fi
-    Slovenian	sl
-    French	fr
-    Spanish	es
-    Galician	gl
-    Swahili	sw
-    Georgian	ka
-    Swedish	sv
-    German	de
-    Tamil	ta
-    Greek	el
-    Telugu	te
-    Gujarati	gu
-    Thai	th
-    Haitian Creole	ht
-    Turkish	tr
-    Hebrew	iw
-    Ukrainian	uk
-    Hindi	hi
-    Urdu	ur
-    Hungarian	hu
-    Vietnamese	vi
-    Icelandic	is
-    Welsh	cy
-    Indonesian	id
-    Yiddish	yi
-    
-    Above available languages and their Language Codes
-    """
-)
+
+print(AVAILABLE_LANGUAGES)
 
 LANGUAGE_TO_TRANSLATE = input(
     "Enter Language Code of the language you want to translate to: "
@@ -197,8 +64,8 @@ def translate_with_google_api(array_of_original_pages, google_api_token, to):
         "Content-Type": "application/json",
     }
     translation = []
-    for page_to_translate in array_of_original_pages:
-        print("...")
+    for index, page_to_translate in enumerate(array_of_original_pages):
+        print(f"Translating page {index}...")
         payload = json.dumps({"q": [page_to_translate], "target": to})
         response = requests.request("POST", url, headers=headers, data=payload)
         translated_page = json.loads(response.text)
@@ -221,7 +88,7 @@ def ocr_from_images(dir):
             # If you don't have tesseract executable in your PATH, include the following:
             # pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_your_tesseract_executable>'
             # Example tesseract_cmd = r'C:\Program Files (x86)\Tesseract-OCR\tesseract'
-            print("...")
+            print(f"Scanning image {index}...")
             # Scan the photo to obtain text
             original_text = pytesseract.image_to_string(
                 Image.open("{}/{}".format(dir, PHOTO))
@@ -264,10 +131,16 @@ def get_book_title(dir):
     return book_title.split(".")[0]
 
 
-original_pages = ocr_from_images(DIR)
-generate_doc("{}".format(get_book_title(DIR)), original_pages)
+def main():
+    original_pages = ocr_from_images(DIR)
+    generate_doc("{}".format(get_book_title(DIR)), original_pages)
 
-translated_pages = translate_with_google_api(
-    original_pages, GOOGLE_API_TOKEN, to=LANGUAGE_TO_TRANSLATE
-)
-generate_doc("{}_translated".format(get_book_title(DIR)), translated_pages)
+    translated_pages = translate_with_google_api(
+        original_pages, GOOGLE_API_TOKEN, to=LANGUAGE_TO_TRANSLATE
+    )
+    generate_doc("{}_translated".format(get_book_title(DIR)), translated_pages)
+
+
+
+if __name__ == "__main__":
+   main()
