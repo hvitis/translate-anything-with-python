@@ -16,29 +16,15 @@ try:
 except ImportError:
     import Image
 
-
-
 # example token
 GOOGLE_API_TOKEN = ""
 
-DIR = input("Enter name of the folder with images of scanned book: ")
-
-chosen_path = os.path.join(DIR)
-
-if not os.path.isdir(chosen_path):
-    sys.exit("No folder named {}, exiting.".format(DIR))
-
-
-
-print(AVAILABLE_LANGUAGES)
-
-LANGUAGE_TO_TRANSLATE = input(
-    "Enter Language Code of the language you want to translate to: "
-)
-
-if LANGUAGE_TO_TRANSLATE not in LANGUAGE_CODES:
-    sys.exit("Chosen Language Code not available, exiting.")
-
+def getTextFromDocxFile(filename):
+    doc = Document(filename)
+    fullText = []
+    for para in doc.paragraphs:
+        fullText.append(para.text)
+    return '\n'.join(fullText)
 
 def valid_xml_char_ordinal(c):
     # Cleaning strings for clean save with python-docx
@@ -68,15 +54,16 @@ def translate_with_google_api(array_of_original_pages, google_api_token, to):
         print(f"Translating page {index}...")
         payload = json.dumps({"q": [page_to_translate], "target": to})
         response = requests.request("POST", url, headers=headers, data=payload)
-        translated_page = json.loads(response.text)
+        json_resp = json.loads(response.text)
+        translated_page = json_resp
         translated_page = translated_page["data"]["translations"][0]["translatedText"]
+        print('Translated: ', translated_page[:100] + '...')
         translation.append(translated_page)
     return translation
 
 
 def ocr_from_images(dir):
     # Returns array of strings where each string is an original text from a scanned page
-
     files = [
         name for name in os.listdir(dir) if os.path.isfile(os.path.join(dir, name))
     ]
@@ -130,17 +117,61 @@ def get_book_title(dir):
         book_title = files[1]
     return book_title.split(".")[0]
 
-
-def main():
-    original_pages = ocr_from_images(DIR)
-    generate_doc("{}".format(get_book_title(DIR)), original_pages)
+def translate_images(directory, language_to_translate_to):
+    original_pages = ocr_from_images(directory)
+    generate_doc("{}".format(get_book_title(directory)), original_pages)
 
     translated_pages = translate_with_google_api(
-        original_pages, GOOGLE_API_TOKEN, to=LANGUAGE_TO_TRANSLATE
+        original_pages, GOOGLE_API_TOKEN, to=language_to_translate_to
     )
-    generate_doc("{}_translated".format(get_book_title(DIR)), translated_pages)
+    generate_doc("{}_translated".format(get_book_title(directory)), translated_pages)
 
+def cutLongStringIntoArray(string):
+    # Returns array fo strings
+    array_of_strings = []
+    # Number of characters possible to translate
+    char_num = 5000
+    # Assess the size of the string and number of pages
+    number_of_pages = len(string) // char_num + 1
+    for _ in range(number_of_pages):
+        beginning_of_the_text = string[:5000]
+        string = string[5000:]
+        rem_char = '\n' # new line that we get from docs
+        array_of_strings.append(beginning_of_the_text.replace(rem_char, ""))
+    return array_of_strings
 
+def main():
+    TRANSLATE_DOCX_FILE = input("Do you only want to translate the file (docx)? (y/n): ")
+    LANGUAGE_TO_TRANSLATE = input(
+        "Enter Language Code of the language you want to translate to: "
+    )    
+    if(TRANSLATE_DOCX_FILE == 'y'):
+        TRANSLATED_FILE = input("Input name of the file to translate: ")
+        chosen_file = os.path.join(TRANSLATED_FILE)
+        if not os.path.isfile(chosen_file):
+            sys.exit("No file named {}, exiting.".format(TRANSLATED_FILE))
+        text_from_docx = getTextFromDocxFile(chosen_file)
+        # Here we get one giant string, because API has limit 5000 chat when translating,
+        # let's change the string to array of characters to reuse the same method as for photos
+        pages_to_translate = cutLongStringIntoArray(text_from_docx)
+        translated_pages = translate_with_google_api(
+        pages_to_translate, GOOGLE_API_TOKEN, LANGUAGE_TO_TRANSLATE
+        )
+        generate_doc("{}_translated".format(TRANSLATED_FILE), translated_pages)
+    else:
+        DIR = input("Enter name of the folder with images of scanned book: ")
+
+        chosen_path = os.path.join(DIR)
+
+        if not os.path.isdir(chosen_path):
+            sys.exit("No folder named {}, exiting.".format(DIR))
+            
+        print(AVAILABLE_LANGUAGES)
+
+        if LANGUAGE_TO_TRANSLATE not in LANGUAGE_CODES:
+            sys.exit("Chosen Language Code not available, exiting.")
+        
+        translate_images(DIR, LANGUAGE_TO_TRANSLATE)
 
 if __name__ == "__main__":
-   main()
+    main()

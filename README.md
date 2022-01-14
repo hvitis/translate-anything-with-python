@@ -1,4 +1,9 @@
-# Translate anything from pictures with Google Translate for free to any language using Python 📚
+# Translate anything with Google Translate using Python 📚
+
+Benefits:
+
+- Only a couple of code lines
+- Free
 
 Here you have the bear minimum if you know Python. Tutorial with additional information about the process, copyrights and lawful bindings for translations can be found [on my blog][5].
 ## Results
@@ -9,8 +14,11 @@ Two docx documents opened next to each other:
 
 ## Instruction
 
-The following code generates 2 docx files of text scanned from photos.
-Photos have to be located within a folder placed next to this script. The flow of work is:
+The following code generates 2 docx files of text scanned from photos. It may also generate translation from .docx file using Google Cloud API (It's free for the first 3 months). If you want to translate more documents or in a specific way, try using Google Document Translation API - it will be quicker.
+
+On initializing you choose whether you want to translate a folder with pictures or a single document file.
+
+If you select the photos, then they need to be located within a folder placed next to translate module (folder). The flow of work is:
 
 - OCR scanning all photos with [pytesseract][8]
 - Using pure [requests][7] to translate via Google API (__not__ using _google-cloud-translate_)
